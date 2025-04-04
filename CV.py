@@ -45,7 +45,7 @@ from sklearn.utils import shuffle
 
 data = shuffle(data)
 url_train = data['url'].values
-label_train = data['label'.values
+label_train = data['label'].values
 url_test = data['url'].values
 label_test = data['label'].values
 
