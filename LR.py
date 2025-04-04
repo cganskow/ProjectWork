@@ -91,13 +91,13 @@ plt.title("Logistic Regression")
 plt.xlabel("Time (seconds)")
 plt.ylabel("Accuracy")
 plt.scatter(times, accuracy)
-plt.show()
+plt.savefig("LR_A.png")
 
 plt.title("Logistic Regression")
 plt.xlabel("Time (seconds)")
 plt.ylabel("CO2 Emissions (kg)")
 plt.scatter(times, carbon)
-plt.show()
+plt.savefig("LR_C.png")
 
 plt.tight_layout()
 
