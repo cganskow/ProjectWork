@@ -1,7 +1,48 @@
+import pandas as pd
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+import joblib
+import re
+import random
+from sklearn.metrics import accuracy_score
 
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
 
+def getTokens(input):
+    tokensBySlash = str(input.encode('utf-8')).split('/')
+#    print(f".encode(utf-8).split('/'){tokensBySlash}")
+    allTokens = []
+    for i in tokensBySlash:
+        tokens = str(i).split('-')
+        tokensByDot = []
+        for j in range(0,len(tokens)):
+            tempTokens = str(tokens[j]).split('.')
+            tokensByDot = tokensByDot + tempTokens
+        allTokens = allTokens + tokens + tokensByDot
+    allTokens = list(set(allTokens))
+    if 'com' in allTokens:
+        allTokens.remove('com')
+    return allTokens
 
+#function to remove "http://" from URL
+def trim(url):
+    return re.match(r'(?:\w*://)?(?:.*\.)?([a-zA-Z-1-9]*\.[a-zA-Z]{1,}).*', url).groups()[0]
 
+data = pd.read_csv("dataNN.csv",on_bad_lines='skip')	#reading file
+# data = pd.read_csv("/workspaces/Malicious-URL-Detection-using-Machine-Learning/data/dataNN.csv",on_bad_lines='skip')	#reading file
+data['url'].values
+
+#convert it into numpy array and shuffle the dataset
+data = np.array(data)
+random.shuffle(data)
+
+y = [d[1] for d in data]
+corpus = [d[0] for d in data]
+vectorizer = TfidfVectorizer(tokenizer=getTokens)
+X = vectorizer.fit_transform(corpus)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 from sklearn.ensemble import RandomForestClassifier
 import time
