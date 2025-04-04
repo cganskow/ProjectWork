@@ -29,7 +29,7 @@ def getTokens(input):
 def trim(url):
     return re.match(r'(?:\w*://)?(?:.*\.)?([a-zA-Z-1-9]*\.[a-zA-Z]{1,}).*', url).groups()[0]
 
-data = pd.read_csv("../data/dataNN.csv",on_bad_lines='skip')	#reading file
+data = pd.read_csv("../dataNN.csv",on_bad_lines='skip')	#reading file
 # data = pd.read_csv("/workspaces/Malicious-URL-Detection-using-Machine-Learning/data/dataNN.csv",on_bad_lines='skip')	#reading file
 data['url'].values
 
