@@ -47,8 +47,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 
 from sklearn.utils import shuffle
 
-data = pd.read_csv("/workspaces/Malicious-URL-Detection-using-Machine-Learning/data/dataNN.csv",on_bad_lines='skip')
-
 data = shuffle(data)
 url_train = data['url'][:].values
 label_train = data['label'][:].values
