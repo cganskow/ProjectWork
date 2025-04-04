@@ -31,18 +31,18 @@ def trim(url):
 
 data = pd.read_csv("dataNN.csv",on_bad_lines='skip')	#reading file
 # data = pd.read_csv("/workspaces/Malicious-URL-Detection-using-Machine-Learning/data/dataNN.csv",on_bad_lines='skip')	#reading file
-data['url'].values
+# data['url'].values
 
 #convert it into numpy array and shuffle the dataset
-data = np.array(data)
-random.shuffle(data)
+# data = np.array(data)
+# random.shuffle(data)
 
-y = [d[1] for d in data]
-corpus = [d[0] for d in data]
-vectorizer = TfidfVectorizer(tokenizer=getTokens)
-X = vectorizer.fit_transform(corpus)
+#y = [d[1] for d in data]
+#corpus = [d[0] for d in data]
+#vectorizer = TfidfVectorizer(tokenizer=getTokens)
+#X = vectorizer.fit_transform(corpus)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 
 from sklearn.utils import shuffle
