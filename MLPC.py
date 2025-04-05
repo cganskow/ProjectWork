@@ -66,7 +66,7 @@ le = LabelEncoder()
 
 tracker = EmissionsTracker(allow_multiple_runs=True)
 vectorizer = TfidfVectorizer()
-clf = MLPClassifier()
+clf = MLPClassifier(max_iter=100)
 
 times = []
 accuracy = []
