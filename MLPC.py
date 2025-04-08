@@ -75,7 +75,7 @@ class MLP(nn.Module):
         return self.model(x)
 
 tracker = EmissionsTracker(allow_multiple_runs=True)
-vectorizer = TfidfVectorizer()
+vectorizer = TfidfVectorizer(max_features=10000)
 
 times = []
 accuracy = []
