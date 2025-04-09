@@ -64,7 +64,7 @@ label_test = data['label'][:].values
 
 # MLPClassifier
 class MLP(nn.Module):
-    def __init__(self, input_dim, hidden_dim=100):
+    def __init__(self, input_dim, hidden_dim=float(100)):
         super(MLP,self).init()
         self.model = nn.Sequential (
             nn.Linear(input_dim, hidden_dim),
@@ -103,9 +103,10 @@ for size in train_sizes:
     y_trainer = torch.tensor(label_train_encoded[:trainers])
 
     train_dataset = TensorDataset(X_trainer, y_trainer)
+    // batchsize?
     train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 
-    clf = MLP(input_dim=X_trainer.shape[1]).to(device)
+    clf = MLP(input_dim=X_trainer.shape[0]).to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(clf.parameters(), lr=0.001)
