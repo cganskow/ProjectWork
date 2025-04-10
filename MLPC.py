@@ -1,18 +1,13 @@
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-import joblib
 import re
-import random
 from sklearn.metrics import accuracy_score
-
 import time
-import matplotlib.pyplot as plt
 from codecarbon import EmissionsTracker
 import logging
 from sklearn.preprocessing import LabelEncoder
 le = LabelEncoder()
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -39,20 +34,6 @@ def trim(url):
     return re.match(r'(?:\w*://)?(?:.*\.)?([a-zA-Z-1-9]*\.[a-zA-Z]{1,}).*', url).groups()[0]
 
 data = pd.read_csv("dataNN.csv",on_bad_lines='skip')	#reading file
-# data = pd.read_csv("/workspaces/Malicious-URL-Detection-using-Machine-Learning/data/dataNN.csv",on_bad_lines='skip')	#reading file
-# data['url'].values
-
-#convert it into numpy array and shuffle the dataset
-# data = np.array(data)
-# random.shuffle(data)
-
-#y = [d[1] for d in data]
-#corpus = [d[0] for d in data]
-#vectorizer = TfidfVectorizer(tokenizer=getTokens)
-#X = vectorizer.fit_transform(corpus)
-
-#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
 
 from sklearn.utils import shuffle
 
@@ -65,7 +46,14 @@ label_test = data['label'][:].values
 # MLPClassifier
 class MLP(nn.Module):
     def __init__(self, input_dim, hidden_dim=float(100)):
-        super(MLP,self).init()
+        super(MLP,self).__init__()
+
+        assert isinstance(input_dim, int), f"Expected input_dim to be an integer, got {type(input_dim)}"
+        assert isinstance(hidden_dim, int), f"Expected hidden_dim to be an integer, got {type(hidden_dim)}"
+        
+        # Make sure input_dim is not zero or negative
+        assert input_dim > 0, f"input_dim should be greater than 0, got {input_dim}"
+
         self.model = nn.Sequential (
             nn.Linear(input_dim, hidden_dim),
             nn.ReLU(),
@@ -75,7 +63,7 @@ class MLP(nn.Module):
         return self.model(x)
 
 tracker = EmissionsTracker(allow_multiple_runs=True)
-vectorizer = TfidfVectorizer(max_features=10000)
+vectorizer = TfidfVectorizer(max_features=50)
 
 times = []
 accuracy = []
@@ -83,30 +71,33 @@ carbon = []
 
 train_sizes = np.arange(.1, 1.1, .1)
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 X_train_ft = vectorizer.fit_transform(url_train)
 X_test_t = vectorizer.transform(url_test)
 X_train_np = X_train_ft.astype(np.float32)
 X_test_np = X_test_t.astype(np.float32)
+print("X_train_np ", X_train_np.shape)
+print("X_train_ft ", X_train_ft.shape)
 
 label_train_encoded = le.fit_transform(label_train)
 label_test_encoded = le.transform(label_test)
-X_test_tensor = torch.tensor(X_test_np.toarray())
-y_test_tensor = torch.tensor(label_test_encoded)
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+X_test_tensor = torch.tensor(X_test_np.toarray()).to(device)
+y_test_tensor = torch.tensor(label_test_encoded).long().to(device)
 
 for size in train_sizes:
     logging.getLogger("codecarbon").setLevel(logging.CRITICAL)
-    trainers = int(url_train.shape[0] * size)
-
-    X_trainer = torch.tensor(X_train_ft[:trainers].toarray())
-    y_trainer = torch.tensor(label_train_encoded[:trainers])
+    trainers = int(X_train_np.shape[1] * size)
+    X_slice = X_train_ft[:trainers]         
+    X_dense = X_slice.toarray()             
+    X_trainer = torch.tensor(X_dense)
+    y_trainer = torch.tensor(label_train_encoded[:trainers]).long().to(device)
 
     train_dataset = TensorDataset(X_trainer, y_trainer)
-    // batchsize?
+    # batchsize?
     train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 
-    clf = MLP(input_dim=X_trainer.shape[0]).to(device)
+    clf = MLP(input_dim=X_trainer.shape[1]).to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(clf.parameters(), lr=0.001)
@@ -134,13 +125,13 @@ for size in train_sizes:
         predicted = torch.argmax(test_preds, dim=1).cpu()
         acc = accuracy_score(y_test_tensor, predicted)
 
-    accuracy_of_section = clf.score(X_test_t, label_test)
+    #accuracy_of_section = clf.score(X_test_t, label_test)
 
     times.append(end-start)
     accuracy.append(acc)
     carbon.append(emissions)
 
-    print(f"Size: {size}\t | Time: {end-start}\t | Accuracy: {accuracy_of_section}\t | Carbon: {emissions} kg CO2")
+    print(f"Size: {size}\t | Time: {end-start}\t | Accuracy: {acc}\t | Carbon: {emissions} kg CO2")
 
 
 del tracker
