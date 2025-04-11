@@ -45,7 +45,7 @@ label_test = data['label'][:].values
 
 # MLPClassifier
 class MLP(nn.Module):
-    def __init__(self, input_dim, hidden_dim=float(100)):
+    def __init__(self, input_dim, hidden_dim=int(100)):
         super(MLP,self).__init__()
 
         assert isinstance(input_dim, int), f"Expected input_dim to be an integer, got {type(input_dim)}"
@@ -82,7 +82,7 @@ print("X_train_ft ", X_train_ft.shape)
 
 label_train_encoded = le.fit_transform(label_train)
 label_test_encoded = le.transform(label_test)
-X_test_tensor = torch.tensor(X_test_np.toarray()).to(device)
+X_test_tensor = torch.tensor(X_test_np.toarray(), dtype=torch.float32).to(device)
 y_test_tensor = torch.tensor(label_test_encoded).long().to(device)
 
 for size in train_sizes:
@@ -90,7 +90,7 @@ for size in train_sizes:
     trainers = int(X_train_np.shape[1] * size)
     X_slice = X_train_ft[:trainers]         
     X_dense = X_slice.toarray()             
-    X_trainer = torch.tensor(X_dense)
+    X_trainer = torch.tensor(X_dense, dtype=torch.float32).to(device)
     y_trainer = torch.tensor(label_train_encoded[:trainers]).long().to(device)
 
     train_dataset = TensorDataset(X_trainer, y_trainer)
