@@ -84,9 +84,10 @@ for size in train_sizes:
     times.append(end-start)
     accuracy.append(accuracy_of_section)
     carbon.append(emissions)
+# This print statement gave me the plot points to use for the graph. I made the graph in excel with the data printed out.
     print(f"Size: {size}\t | Time: {end-start}\t | Accuracy: {accuracy_of_section}\t | Carbon: {emissions} kg CO2")
 
-
+# I was unable to get plt to work on the machine so I used the above print function to gather my data. 
 plt.title("Logistic Regression")
 plt.xlabel("Time (seconds)")
 plt.ylabel("Accuracy")
